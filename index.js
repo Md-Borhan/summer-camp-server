@@ -24,13 +24,47 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
+
+    const sliderCollection = client.db("unitedSports").collection("slider");
+    const usersCollection = client.db("unitedSports").collection("users");
+
+    // Get slider
+    app.get("/slider", async (req, res) => {
+      const sliderData = await sliderCollection.find().toArray();
+      res.send(sliderData);
+    });
+
+    // Users data
+    app.put("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const users = req.body;
+      const query = { email: email };
+      const options = {
+        upsert: true,
+      };
+      const updateDocs = {
+        $set: users,
+      };
+      const result = await usersCollection.updateOne(
+        query,
+        updateDocs,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
