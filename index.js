@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5500;
@@ -27,8 +27,9 @@ async function run() {
 
     const sliderCollection = client.db("unitedSports").collection("slider");
     const usersCollection = client.db("unitedSports").collection("users");
+    const classesCollection = client.db("unitedSports").collection("classes");
 
-    // Get slider
+    // slider data
     app.get("/slider", async (req, res) => {
       const sliderData = await sliderCollection.find().toArray();
       res.send(sliderData);
@@ -55,6 +56,75 @@ async function run() {
 
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Manage User Role
+    app.patch("/users/admin/:id", async (req, res) => {
+      const filter = { _id: new ObjectId(req.params.id) };
+      const updateDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.patch("/users/instructor/:id", async (req, res) => {
+      const filter = { _id: new ObjectId(req.params.id) };
+      const updateDoc = {
+        $set: {
+          role: "instructor",
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // Classes Data
+    app.post("/classes", async (req, res) => {
+      const body = req.body;
+      const result = await classesCollection.insertOne(body);
+      res.send(result);
+    });
+
+    // Class status data
+    app.patch("/classes/approved/:id", async (req, res) => {
+      const filter = { _id: new ObjectId(req.params.id) };
+      const updateDoc = {
+        $set: {
+          status: "approved",
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.patch("/classes/deny/:id", async (req, res) => {
+      const filter = { _id: new ObjectId(req.params.id) };
+      const updateDoc = {
+        $set: {
+          status: "deny",
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.patch("/classes/feedback/:id", async (req, res) => {
+      const filter = { _id: new ObjectId(req.params.id) };
+      const updateDoc = {
+        $set: {
+          status: "feedback",
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.get("/classes", async (req, res) => {
+      const result = await classesCollection.find().toArray();
       res.send(result);
     });
 
