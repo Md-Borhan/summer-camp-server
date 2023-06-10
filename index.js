@@ -89,6 +89,24 @@ async function run() {
       res.send(result);
     });
 
+    // Class Update
+    app.patch("/classes/:id", async (req, res) => {
+      const filter = { _id: new ObjectId(req.params.id) };
+      const body = req.body;
+      const updateDoc = {
+        $set: {
+          className: body.className,
+          imageUrl: body.imageUrl,
+          name: body.name,
+          email: body.email,
+          seats: parseFloat(body.seats),
+          price: parseFloat(body.price),
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     // Class status data
     app.patch("/classes/approved/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
@@ -116,7 +134,7 @@ async function run() {
       const filter = { _id: new ObjectId(req.params.id) };
       const updateDoc = {
         $set: {
-          status: "feedback",
+          feedback: req.body.feedback,
         },
       };
       const result = await classesCollection.updateOne(filter, updateDoc);
