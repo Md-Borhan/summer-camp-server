@@ -77,6 +77,7 @@ async function run() {
       res.send(result);
     });
 
+    // Set Instructor Role
     app.patch("/users/instructor/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
       const updateDoc = {
