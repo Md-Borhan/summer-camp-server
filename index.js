@@ -65,7 +65,7 @@ async function run() {
       res.send(result);
     });
 
-    // Manage User Role
+    // Manage User Role on Admin
     app.patch("/users/admin/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
       const updateDoc = {
@@ -77,7 +77,7 @@ async function run() {
       res.send(result);
     });
 
-    // Set Instructor Role
+    // Manage User Role on Instructor
     app.patch("/users/instructor/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
       const updateDoc = {
