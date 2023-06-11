@@ -157,9 +157,16 @@ async function run() {
     });
 
     // Booked Class
-    app.post("bookedClasses", async (req, res) => {
+    app.post("/booked", async (req, res) => {
       const body = req.body;
+      console.log(body);
       const result = await bookedClassCollection.insertOne(body);
+      res.send(result);
+    });
+
+    // Get Booked Class
+    app.get("/booked", async (req, res) => {
+      const result = await bookedClassCollection.find().toArray();
       res.send(result);
     });
 
