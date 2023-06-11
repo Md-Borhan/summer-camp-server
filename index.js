@@ -170,6 +170,14 @@ async function run() {
       res.send(result);
     });
 
+    // Delete Booked Class
+    app.delete("/booked/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await bookedClassCollection.deleteOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
