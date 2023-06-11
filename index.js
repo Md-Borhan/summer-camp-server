@@ -28,6 +28,9 @@ async function run() {
     const sliderCollection = client.db("unitedSports").collection("slider");
     const usersCollection = client.db("unitedSports").collection("users");
     const classesCollection = client.db("unitedSports").collection("classes");
+    const bookedClassCollection = client
+      .db("unitedSports")
+      .collection("bookedClasses");
 
     // slider data
     app.get("/slider", async (req, res) => {
@@ -150,6 +153,13 @@ async function run() {
 
     app.get("/classes", async (req, res) => {
       const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Booked Class
+    app.post("bookedClasses", async (req, res) => {
+      const body = req.body;
+      const result = await bookedClassCollection.insertOne(body);
       res.send(result);
     });
 
