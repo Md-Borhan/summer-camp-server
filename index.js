@@ -177,6 +177,12 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/booked/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const result = await bookedClassCollection.find(filter).toArray();
+      res.send(result);
+    });
+
     // Delete Booked Class
     app.delete("/booked/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
