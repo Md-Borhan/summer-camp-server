@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
+const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
 const port = process.env.PORT || 5500;
 
 app.use(cors());
@@ -31,6 +32,7 @@ async function run() {
     const bookedClassCollection = client
       .db("unitedSports")
       .collection("bookedClasses");
+    const paymentCollection = client.db("unitedSports").collection("payment");
 
     // slider data
     app.get("/slider", async (req, res) => {
@@ -159,8 +161,13 @@ async function run() {
     // Booked Class
     app.post("/booked", async (req, res) => {
       const body = req.body;
-      console.log(body);
       const result = await bookedClassCollection.insertOne(body);
+      res.send(result);
+    });
+
+    app.get("/booked/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await bookedClassCollection.findOne(query);
       res.send(result);
     });
 
@@ -173,8 +180,38 @@ async function run() {
     // Delete Booked Class
     app.delete("/booked/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
+      console.log(query);
       const result = await bookedClassCollection.deleteOne(query);
       console.log(result);
+      res.send(result);
+    });
+
+    // Create Payment Intent
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    // Post Booked Class Payment History
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      const result = await paymentCollection.insertOne(payment);
+      res.send(result);
+    });
+
+    // Get Payment History
+    app.get("/payments/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const result = await paymentCollection.find(filter).toArray();
       res.send(result);
     });
 
