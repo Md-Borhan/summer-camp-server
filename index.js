@@ -165,6 +165,12 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/classes/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const result = await classesCollection.find(filter).toArray();
+      res.send(result);
+    });
+
     // Booked Class
     app.post("/booked", async (req, res) => {
       const body = req.body;
