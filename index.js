@@ -33,11 +33,18 @@ async function run() {
       .db("unitedSports")
       .collection("bookedClasses");
     const paymentCollection = client.db("unitedSports").collection("payment");
+    const reviewsCollection = client.db("unitedSports").collection("reviews");
 
     // slider data
     app.get("/slider", async (req, res) => {
       const sliderData = await sliderCollection.find().toArray();
       res.send(sliderData);
+    });
+
+    // Reviews Data
+    app.get("/reviews", async (req, res) => {
+      const reviewData = await reviewsCollection.find().toArray();
+      res.send(reviewData);
     });
 
     // Users data
