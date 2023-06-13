@@ -215,11 +215,60 @@ async function run() {
     });
 
     // Post Booked Class Payment History
-    app.post("/payments", async (req, res) => {
+    /*  app.post("/payments", async (req, res) => {
       const payment = req.body;
+      const courseId = payment.classid;
+      console.log(courseId);
+      const updateResult = await classesCollection.updateOne(
+        { _id: new ObjectId(courseId) },
+        { $inc: { enrolled: 1, availableSeats: -1 } }
+      );
+      console.log(updateResult);
+
       const result = await paymentCollection.insertOne(payment);
       res.send(result);
+    }); */
+
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+
+      // Update enrolled and availableSeats in classesCollection
+      const classId = payment.classId;
+      const updateResult = await classesCollection.updateOne(
+        { _id: new ObjectId(classId) },
+        { $inc: { enrolled: 1, seats: -1 } }
+      );
+
+      // to delete from cartCollection
+      const courseIdFilter = { classId: payment.classId };
+      console.log(courseIdFilter);
+      const deleteClassCart = await bookedClassCollection.deleteOne(
+        courseIdFilter
+      );
+
+      const result = await paymentCollection.insertOne(payment);
+      res.send({ result, deleteClassCart, updateResult });
     });
+
+    /*  app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      console.log("payment", payment);
+
+      // Update enrolled and availableSeats in classesCollection
+      const courseId = payment.courseId; // Assuming you have the class ID in the payment object
+      console.log(courseId);
+      const updateResult = await classesCollection.updateOne(
+        { _id: new ObjectId(courseId) },
+        { $inc: { enrolled: 1, availableSeats: -1 } }
+      );
+      // to delete from cartCollection
+      const courseIdFilter = { courseId: payment.courseId };
+      const deleteClassCart = await myClassesCollection.deleteOne(
+        courseIdFilter
+      );
+      const result = await paymentsCollection.insertOne(payment);
+      res.send({ result, deleteClassCart, updateResult });
+    }); */
 
     // Get Payment History
     app.get("/payments/:email", async (req, res) => {
