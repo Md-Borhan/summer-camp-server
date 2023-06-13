@@ -94,7 +94,7 @@ async function run() {
       res.send(result);
     });
 
-    // Classes Data
+    // Post Classes Data
     app.post("/classes", async (req, res) => {
       const body = req.body;
       const result = await classesCollection.insertOne(body);
