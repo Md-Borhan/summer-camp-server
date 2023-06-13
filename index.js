@@ -250,26 +250,6 @@ async function run() {
       res.send({ result, deleteClassCart, updateResult });
     });
 
-    /*  app.post("/payments", async (req, res) => {
-      const payment = req.body;
-      console.log("payment", payment);
-
-      // Update enrolled and availableSeats in classesCollection
-      const courseId = payment.courseId; // Assuming you have the class ID in the payment object
-      console.log(courseId);
-      const updateResult = await classesCollection.updateOne(
-        { _id: new ObjectId(courseId) },
-        { $inc: { enrolled: 1, availableSeats: -1 } }
-      );
-      // to delete from cartCollection
-      const courseIdFilter = { courseId: payment.courseId };
-      const deleteClassCart = await myClassesCollection.deleteOne(
-        courseIdFilter
-      );
-      const result = await paymentsCollection.insertOne(payment);
-      res.send({ result, deleteClassCart, updateResult });
-    }); */
-
     // Get Payment History
     app.get("/payments/:email", async (req, res) => {
       const filter = { email: req.params.email };
