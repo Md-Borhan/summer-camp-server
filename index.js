@@ -47,7 +47,7 @@ async function run() {
       res.send(reviewData);
     });
 
-    // Users data
+    // Users Data
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
       const users = req.body;
@@ -66,12 +66,36 @@ async function run() {
       res.send(result);
     });
 
+    // Get Single User
     app.get("/users/:email", async (req, res) => {
       const filter = { email: req.params.email };
+      console.log(filter);
       const result = await usersCollection.findOne(filter);
       res.send(result);
     });
 
+    // Get User Role
+    app.get("/users/role/:email", async (req, res) => {
+      const email = { email: req.params.email };
+      const user = await usersCollection.findOne(email);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      let role;
+      if (user.role === "admin") {
+        role = "admin";
+      } else if (user.role === "student") {
+        role = "student";
+      } else if (user.role === "instructor") {
+        role = "instructor";
+      } else {
+        role = "unknown";
+      }
+      res.json({ email: email, role: role });
+    });
+
+    // Get All User
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
@@ -108,7 +132,7 @@ async function run() {
       res.send(result);
     });
 
-    // Class Update
+    // Update Class
     app.patch("/classes/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
       const body = req.body;
@@ -126,7 +150,7 @@ async function run() {
       res.send(result);
     });
 
-    // Class status data
+    // Update Class Status
     app.patch("/classes/approved/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
       const updateDoc = {
@@ -149,6 +173,7 @@ async function run() {
       res.send(result);
     });
 
+    // Update Class Feedback
     app.patch("/classes/feedback/:id", async (req, res) => {
       const filter = { _id: new ObjectId(req.params.id) };
       const updateDoc = {
@@ -160,11 +185,16 @@ async function run() {
       res.send(result);
     });
 
+    // Get All Class
     app.get("/classes", async (req, res) => {
-      const result = await classesCollection.find().toArray();
+      const result = await classesCollection
+        .find()
+        .sort({ enrolled: -1 })
+        .toArray();
       res.send(result);
     });
 
+    // Get Single Class
     app.get("/classes/:email", async (req, res) => {
       const filter = { email: req.params.email };
       const result = await classesCollection.find(filter).toArray();
@@ -178,18 +208,20 @@ async function run() {
       res.send(result);
     });
 
+    // Get Single Booked Class
     app.get("/booked/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
       const result = await bookedClassCollection.findOne(query);
       res.send(result);
     });
 
-    // Get Booked Class
+    // Get All Booked Class
     app.get("/booked", async (req, res) => {
       const result = await bookedClassCollection.find().toArray();
       res.send(result);
     });
 
+    // Get Booked Class By Email
     app.get("/booked/:email", async (req, res) => {
       const filter = { email: req.params.email };
       const result = await bookedClassCollection.find(filter).toArray();
@@ -199,9 +231,7 @@ async function run() {
     // Delete Booked Class
     app.delete("/booked/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
-      console.log(query);
       const result = await bookedClassCollection.deleteOne(query);
-      console.log(result);
       res.send(result);
     });
 
@@ -220,21 +250,7 @@ async function run() {
       });
     });
 
-    // Post Booked Class Payment History
-    /*  app.post("/payments", async (req, res) => {
-      const payment = req.body;
-      const courseId = payment.classid;
-      console.log(courseId);
-      const updateResult = await classesCollection.updateOne(
-        { _id: new ObjectId(courseId) },
-        { $inc: { enrolled: 1, availableSeats: -1 } }
-      );
-      console.log(updateResult);
-
-      const result = await paymentCollection.insertOne(payment);
-      res.send(result);
-    }); */
-
+    // Post Payment History
     app.post("/payments", async (req, res) => {
       const payment = req.body;
 
@@ -247,7 +263,6 @@ async function run() {
 
       // to delete from cartCollection
       const courseIdFilter = { classId: payment.classId };
-      console.log(courseIdFilter);
       const deleteClassCart = await bookedClassCollection.deleteOne(
         courseIdFilter
       );
@@ -259,7 +274,10 @@ async function run() {
     // Get Payment History
     app.get("/payments/:email", async (req, res) => {
       const filter = { email: req.params.email };
-      const result = await paymentCollection.find(filter).toArray();
+      const result = await paymentCollection
+        .find(filter)
+        .sort({ date: -1 })
+        .toArray();
       res.send(result);
     });
 
